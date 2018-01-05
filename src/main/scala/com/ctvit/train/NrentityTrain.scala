@@ -16,9 +16,10 @@ object NrentityTrain {
   
   def train(){
     println("读取用户浏览记录")
-    val logRawRDD = sc.textFile("hdfs://localhost:9000/home/zhang/userlog/device_id_hot50_dataSet.csv")
+    //公司集群地址： /tmp/zzl/userlog
+    //本地地址 ： hdfs://localhost:9000/home/zhang/
+    val logRawRDD = sc.textFile("/tmp/zzl/userlog/device_id_hot50_dataSet.csv")
     .map { line => val fields = line.split(","); (fields(0).replace("\"", ""), fields(2).replace("\"",""))}
-//    .filter(tuple => tuple._1 == "353456789159784")
     .filter(tuple => tuple._2.contains("ARTI"))
     .groupByKey()
     .filter(tuple => tuple._2.size > 0)
@@ -47,12 +48,14 @@ object NrentityTrain {
     (r.getString(1))
   }
   
-  def insterEntityOfUsers(userId: String, tuple: (String, Int) ): Unit ={
+  def insterEntityOfUsers(userId: String, tuple: (String, Int) ){
    println("插入用户实体")
     var nrentity = tuple._1
     var count = tuple._2
     val str = s"insert into a_user_favorite_nrentity(userid,nrentity,count) values ('$userId','$nrentity','$count') ;"; 
-    conn.createStatement().execute(str)
+   println(str) 
+   conn.createStatement().execute(str)
+   println("插入成功！")
   }
   
   def main(args: Array[String]): Unit = {

@@ -4,6 +4,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.Properties
 import java.io.FileInputStream
+import java.io.File
 
 object Config {
   var mysql_url = ""
@@ -15,11 +16,15 @@ object Config {
   var nrentityobj = ""
   var properties = new Properties()
   println("开始读取配置文件！")
-  
-  var path = Thread.currentThread().getContextClassLoader.getResource("db.properties").getPath //文件要放到resource文件夹下
-//  val path = new FileInputStream("/home"+"/db.properties")
-//  properties.load(new FileInputStream(path))
+  //本地读取配置文件代码，需要将配置文件放入到target中
+//  var path = Thread.currentThread().getContextClassLoader.getResource("db.properties").getPath //文件要放到resource文件夹下
+
+  //集群读取配置文件代码
+  var directory = new File("..")
+  var filePath = directory.getAbsolutePath
+  var path = filePath+"/home"+"/db.properties"
   println(path)
+
   properties.load(new FileInputStream(path))
   //properties.load(new FileInputStream("E:\\code\\eclipse\\scalaspark\\target\\classes\\com\\ctvit\\config\\db.properties"))
   mysql_url = properties.getProperty("mysql_url")

@@ -23,7 +23,8 @@ object TrainNrtity {
  	*/
   def train() {
       println("读取用户浏览记录")
-    val logRawRDD = sc.textFile("hdfs://localhost:9000/userlog/device_id_hot50_dataSet.csv")
+      
+    val logRawRDD = sc.textFile("/tmp/zzl/userlog/device_id_hot50_dataSet.csv")
       .map { line => val fields = line.split(","); (fields(0).replace("\"", ""), fields(2).replace("\"","")) }
       .filter(tuple => tuple._1 == "353456789159784")
       .filter(tuple => tuple._2.contains("ARTI"))
