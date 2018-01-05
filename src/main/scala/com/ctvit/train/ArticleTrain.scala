@@ -27,20 +27,23 @@ object ArticleTrain{
     val sc = new SparkContext(conf)
     val filterlst: List[String] = List("cctv1", "cctv10", "cctv12", "cctv14", "cctv15", "cctv3", "cctv4", "cctv7","cctv2")
     println(filterlst.contains("cctv10"));
-    val non_series_data = new JdbcRDD(sc, MysqlConn.connMySQL, "select  mid,ti,tag,content,channel from q_test where  (id>? and id<?)", 1, 500000, 4, getQtest)
+    val non_series_data = new JdbcRDD(sc, MysqlConn.connMySQL, "select  mid,ti,tag,content,channel from q_test where  (id>? and id<?)", 1, 20000000, 4, getQtest)
       .filter(tup => tup._5 != null && tup._5 != "")
       .filter(tup => filterlst.contains(tup._5.toLowerCase()))
       //.foreach(tup=>println(tup._5))
       .map(tup => (tup._1, tup._2 + tup._3 + tup._4, tup._5.toLowerCase()))
       .map(tup => computeTopic(tup._1, tup._2, tup._3))
-      .collect().foreach(tup =>insertMySQL(tup._1, tup._2, tup._3,tup._4, tup._5, tup._6,tup._7))
+//      .collect()
+      .foreach(tup =>insertMySQL(tup._1, tup._2, tup._3,tup._4, tup._5, tup._6,tup._7))
       if(!conn.isClosed())
       {
         conn.close();
       }
   }
   def computeTopic(mid: String, content: String, channel: String): scala.Tuple7[String, String, String, String, Float, Float,String] = {
-    val topicSim: TopicSimilar = new TopicSimilar()
+    println("++++++++")
+    var topicSim: TopicSimilar = new TopicSimilar()
+    println("--------")
   //  val filter: List[String] = List("cctv1", "cctv10", "cctv12", "cctv14", "cctv15", "cctv3", "cctv4", "cctv7")
     var topic1Name: String = ""
     var topic2Name: String = ""
@@ -48,11 +51,12 @@ object ArticleTrain{
     var topic2Score: Float = 0f
     var nrEntity: String = ""
   
-      val keyword = HanLP.extractKeyword(content, 100);
-      //println(keyword)
-      var topicSet = topicSim.computeBestTopic(channel, keyword);
-      var iter = topicSet.iterator()
-      var i = 0
+    val keyword = HanLP.extractKeyword(content, 100);
+    println("keyword:"+keyword)
+    var topicSet = topicSim.computeBestTopic(channel, keyword);
+    println("topicSet:"+topicSet)
+    var iter = topicSet.iterator()
+    var i = 0
 
       while (iter.hasNext()) {
         i = i + 1
@@ -67,7 +71,7 @@ object ArticleTrain{
         }
       }
       nrEntity = Utils.cmpNrEntity(content);
-    
+      println("完成实体提取，返回插入数据库的数据")
     (mid, channel, topic1Name, topic2Name, topic1Score, topic2Score,nrEntity)
   }
   def insertMySQL(mid:String, channel:String, topic1Name:String, topic2Name:String, topic1Score:Float, topic2Score:Float,nrEntity:String): Unit = {

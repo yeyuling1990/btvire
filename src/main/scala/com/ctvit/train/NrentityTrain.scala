@@ -16,8 +16,8 @@ object NrentityTrain {
   
   def train(){
     println("读取用户浏览记录")
-    //公司集群地址： /tmp/zzl/userlog
-    //本地地址 ： hdfs://localhost:9000/home/zhang/
+    //公司集群地址： /tmp/zzl/userlog/device_id_hot50_dataSet.csv
+    //本地地址 ： hdfs://localhost:9000/home/zhang/userlog/device_id_hot50_dataSet.csv
     val logRawRDD = sc.textFile("/tmp/zzl/userlog/device_id_hot50_dataSet.csv")
     .map { line => val fields = line.split(","); (fields(0).replace("\"", ""), fields(2).replace("\"",""))}
     .filter(tuple => tuple._2.contains("ARTI"))

@@ -16,7 +16,7 @@ import com.hankcs.hanlp.seg.common.Term;
 
 public class Utils {
 	
-	public static BloomFilter<String> fileter = new BloomFilter(0.00000001,10000000);
+//	public static BloomFilter<String> fileter = new BloomFilter(0.00000001,10000000);
 
 	/*
 	 * static中代码通过使用bloomFilter来加载人名字典，快速过滤。
@@ -37,8 +37,8 @@ public class Utils {
 ////
 ////		fileter.saveFilterToFile("C:\\11.obj");
 		 
-		fileter = fileter.readFilterFromFile("hdfs://localhost:9000/model/11.obj");  
-		System.out.println("加载nrentity完成");
+//		fileter = fileter.readFilterFromFile("hdfs://localhost:9000/model/11.obj");  
+//		System.out.println("加载nrentity完成");
 	}
 	
 	
@@ -97,7 +97,7 @@ public class Utils {
 						&& !term.word.contains("医生") && term.word.length() >1)
 				{
 					String nrtity = term.word.trim();
-					if(fileter.contains(nrtity))
+//					if(fileter.contains(nrtity))
 					{
 						if(!entityList.contains(nrtity))
 						{

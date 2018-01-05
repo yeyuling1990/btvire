@@ -24,9 +24,11 @@ object UserTrain {
     val topiccountdata = new JdbcRDD(sc, MysqlConn.connMySQL, "select  userid,tchannel,topicid,count from a_user_favorite1 where  id>? and id<?", 1, 2000000, 1, getUserFavorite)
       .collect().foreach(tup => (topicCount.put(tup._1 + "$" + tup._2 + "$" + tup._3, tup._4)))
 //    topicCount.foreach(tup => println(tup._1 + ":" + tup._2))
-    
+    println("获得历史的用户喜好")
       //增量计算
-    val logRawRDD = sc.textFile("hdfs://localhost:9000/userlog/device_id_hot50_dataSet.csv")
+    //本地文件地址：hdfs://localhost:9000/userlog/device_id_hot50_dataSet.csv
+    //公司文件地址：/tmp/zzl/userlog/device_id_hot50_dataSet.csv
+    val logRawRDD = sc.textFile("/tmp/zzl/userlog/device_id_hot50_dataSet.csv")
       .map { line => val fields = line.split(","); (fields(0).replace("\"", ""), fields(2).replace("\"","")) }
       .filter(tuple => tuple._1 != "common_device_id")
       println("开始处理日志:"+logRawRDD.count())
