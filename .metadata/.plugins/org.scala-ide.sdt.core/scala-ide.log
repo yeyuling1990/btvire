@@ -1,0 +1,2 @@
+2017-12-21 08:45:46,065 ERROR [main] - System.err - log4j:WARN No appenders could be found for logger (org.eclipse.m2e.core.internal.project.registry.ProjectRegistryRefreshJob).
+2017-12-21 08:45:46,081 ERROR [main] - System.err - log4j:WARN Please initialize the log4j system properly.
