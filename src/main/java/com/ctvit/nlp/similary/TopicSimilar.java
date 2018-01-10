@@ -1,7 +1,11 @@
 package com.ctvit.nlp.similary;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -11,24 +15,27 @@ import com.google.word2vec.VectorModel;
 import com.google.word2vec.VectorModel.WordScore;
 
 import pitt.search.semanticvectors.vectors.Vector;
-
 public class TopicSimilar {
 	private static VectorModel vmTopic;
      static{
-    	String path = Thread.currentThread().getContextClassLoader().getResource("db.properties").getPath();
-    	Properties prop = new Properties();//属性集合对象    
-        FileInputStream fis;
-		try {
-			fis = new FileInputStream(path);
-			 prop.load(fis);//将属性文件流装载到Properties对象中   
-			 fis.close();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}//属性文件流    
-		
-       
-    	vmTopic = VectorModel.loadFromFile(prop.getProperty("topicModelPath"));
+    	//这里我写死了，必须修改 
+//    	 //本地测试使用的path
+//    	InputStream path = TopicSimilar.class.getResourceAsStream("db.properties");
+//    	
+//    	Properties prop = new Properties();//属性集合对象    
+////        InputStream fis;
+//		try {
+////			fis = path;
+//			 prop.load(path);//将属性文件流装载到Properties对象中   
+////			 fis.close();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}//属性文件流    
+//		
+//       
+//    	vmTopic = VectorModel.loadFromFile(prop.getProperty("topicModelPath"));
+    	 vmTopic = VectorModel.loadFromFile("/tmp/zzl/model/topicAllVec");
 		vmTopic.setTopNSize(2);
 	}
 	/**

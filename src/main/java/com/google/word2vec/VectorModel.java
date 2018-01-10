@@ -103,7 +103,10 @@ public class VectorModel {
 		int wordCount, layerSizeLoaded = 0;
 		Map<String, float[]> wordMapLoaded = new HashMap<String, float[]>();
 		try {
-			if(path.startsWith("hdfs:"))
+			//在本地使用的时候使用hdfs，如果是在集群上，默认直接就是路径
+//			if(path.startsWith("hdfs:"))
+
+			if(path.startsWith("/tmp"))
 			{
 				Configuration conf = new Configuration();
 				FileSystem fs = FileSystem.get(URI.create(path),conf);

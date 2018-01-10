@@ -13,12 +13,15 @@ object UserTrain {
   val conn = MysqlConn.connMySQL()
   val conf = new SparkConf()
   conf.setAppName("MyFirstSparkApplication") //设置应用程序的名称，在程序运行的监控界面可以看到名称
-  conf.setMaster("local")
+//  conf.setMaster("local")
   conf.set("spark.executor.memory", "2g")
   val sc = new SparkContext(conf)
   var topicCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
   //topicCount.foreach(tup=>println(tup._1+ ":" + tup._2))
 
+  var topicCountInner: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
+
+  
   def train() {
     //获得历史的用户喜好，然后读取记录进行增量计算。    
     val topiccountdata = new JdbcRDD(sc, MysqlConn.connMySQL, "select  userid,tchannel,topicid,count from a_user_favorite1 where  id>? and id<?", 1, 2000000, 1, getUserFavorite)
@@ -31,9 +34,9 @@ object UserTrain {
     val logRawRDD = sc.textFile("/tmp/zzl/userlog/device_id_hot50_dataSet.csv")
       .map { line => val fields = line.split(","); (fields(0).replace("\"", ""), fields(2).replace("\"","")) }
       .filter(tuple => tuple._1 != "common_device_id")
+      .filter(tuple => tuple._2.contains("ARTI"))
       println("开始处理日志:"+logRawRDD.count())
-    val userLogRdd = logRawRDD.groupByKey()
-    userLogRdd.collect().take(100).foreach(tuple => iterUser(tuple._1, tuple._2))
+    val userLogRdd = logRawRDD.groupByKey().collect().take(100).foreach(tuple => iterUser(tuple._1, tuple._2))
 //    .foreach(tuple => println(tuple._1+":"+tuple._2.size))
    
     if(!conn.isClosed())
@@ -43,27 +46,23 @@ object UserTrain {
     }
   }
   
-  def iterUser(userId: String, articleList: Iterable[String]) {
-    // println(userId + ":")
-    // println(articleList)
-    var sSql: String = ""
-    articleList.foreach(t => sSql = sSql + "'" + t + "',")
-    if (sSql.length() > 1) {
-      sSql = sSql.substring(0, sSql.length() - 1)
-
-      //println("select  channel,topic1,topic2 from a_article_topic where article_id in (" + sSql  + ") and  id>1 and id<200000")
-
-      val non_series_data = new JdbcRDD(sc, MysqlConn.connMySQL, "select  channel,topic1,topic2 from a_article_topic where article_id in (" + sSql + ") and  id>? and id<?", 1, 2000000, 10, getArticleTopic)
+  def iterUser(userId: String, articleList: Iterable[String]) = {
+//    println(userId + ":")
+//    println(articleList)
+    var sSql = articleList.mkString(",").replace(",", "','")
+    sSql = "'"+sSql+"'"
+    //println("select  channel,topic1,topic2 from a_article_topic where article_id in (" + sSql  + ") and  id>1 and id<200000")
+    println(sSql)
+    val non_series_data = new JdbcRDD(sc, MysqlConn.connMySQL, "select  channel,topic1,topic2 from a_article_topic where article_id in (" + sSql + ") and  id>? and id<?", 1, 2000000, 2, getArticleTopic)
         .map(tup => (tup._1, (tup._2, tup._3)))
         .groupByKey()
         .foreach(tup => computeTopic(tup._1, tup._2, userId))
-    }
     //println(sSql)
   }
   
-  def computeTopic(channel: String, topics: Iterable[(String, String)], userId: String) {
-    var topicCountInner: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
-
+  def computeTopic(channel: String, topics: Iterable[(String, String)], userId: String) = {
+        println("开始计算用户喜欢的topic")    
+    
     for (elem <- topics) {
 
       var temp = topicCount.get(userId + "$" + channel + "$" + elem._1).getOrElse(0)

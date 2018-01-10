@@ -10,7 +10,7 @@ object NrentityTrain {
   val conn = MysqlConn.connMySQL()
   val conf = new SparkConf()
   conf.setAppName("entityTrain")
-  conf.setMaster("local")
+//  conf.setMaster("local")
   conf.set("spark.executor.memory", "2g")
   val sc = new SparkContext(conf)
   

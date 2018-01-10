@@ -11,15 +11,16 @@ import com.ctvit.db.MysqlConn
 
 object UserTrainResult {
   val conn = MysqlConn.connMySQL()
+  var channelCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
+  var userCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
+  val conf = new SparkConf()
+  conf.setAppName("MyFirstSparkApplication") //设置应用程序的名称，在程序运行的监控界面可以看到名称
+//  conf.setMaster("local")
+  conf.set("spark.executor.memory", "2g")
+  val sc = new SparkContext(conf)
+  
   def train() {
-    val conf = new SparkConf()
-    conf.setAppName("MyFirstSparkApplication") //设置应用程序的名称，在程序运行的监控界面可以看到名称
-    conf.setMaster("local")
-    conf.set("spark.executor.memory", "2g")
-    var channelCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
-    var userCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
 
-    val sc = new SparkContext(conf)
     val topiccountdata = new JdbcRDD(sc, MysqlConn.connMySQL, "select  userid,tchannel,topicid,count from a_user_favorite where  id>? and id<?", 1, 2000000, 1, getUserFavorite)
     val userCountRdd = topiccountdata.map(tup => (tup._1, tup._4)).reduceByKey(_ + _, 3)
     userCountRdd.collect().foreach(tup => userCount.put(tup._1, tup._2))
@@ -34,6 +35,7 @@ object UserTrainResult {
       conn.close()
     }
   }
+  
   def insertChannel(userId: String, channel: String, count: Int, userCount: Int): Unit = {
     if (userCount != 0) {
       var dCount: Float = count

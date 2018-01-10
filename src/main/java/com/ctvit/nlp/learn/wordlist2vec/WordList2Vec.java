@@ -28,18 +28,19 @@ public class WordList2Vec {
 	private int vectorSize = 200; // 特征数
 
 	static {
-		String path = Thread.currentThread().getContextClassLoader().getResource("db.properties").getPath();
-		Properties prop = new Properties();// 属性集合对象
-		FileInputStream fis;
-		try {
-			fis = new FileInputStream(path);
-			prop.load(fis);// 将属性文件流装载到Properties对象中
-			fis.close();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // 属性文件流
-		vmZH = VectorModel.loadFromFile(prop.getProperty("wordModelPath"));
+//		String path = Thread.currentThread().getContextClassLoader().getResource("db.properties").getPath();
+//		Properties prop = new Properties();// 属性集合对象
+//		FileInputStream fis;
+//		try {
+//			fis = new FileInputStream(path);
+//			prop.load(fis);// 将属性文件流装载到Properties对象中
+//			fis.close();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} // 属性文件流
+//		vmZH = VectorModel.loadFromFile(prop.getProperty("wordModelPath"));
+		vmZH = VectorModel.loadFromFile("/tmp/zzl/model/word2vec.model");
 	}
 
 	public Vector trainDocVector(List<String> wordLst) {
