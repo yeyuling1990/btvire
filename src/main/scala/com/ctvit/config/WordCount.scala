@@ -3,7 +3,7 @@ package com.ctvit.config
 import org.apache.spark.SparkConf  
 import org.apache.spark.SparkContext  
 import org.apache.spark.rdd.RDD 
-  
+import scala.math.random
 /** 
  * 使用Scala开发本地测试的Spark WordCount程序 
  */  
@@ -18,7 +18,7 @@ object WordCount {
       
     val conf = new SparkConf()  
     conf.setAppName("MyFirstSparkApplication")  //设置应用程序的名称，在程序运行的监控界面可以看到名称  
-    conf.setMaster("local")   //此时程序在本地运行，无需安装Spark的任何集群  
+//    conf.setMaster("local")   //此时程序在本地运行，无需安装Spark的任何集群  
       
     /** 
      * 第二步:创建SparkContext对象 
@@ -38,7 +38,7 @@ object WordCount {
       
      //文件的路径，最小并行度（根据机器数量来决定）  
     //val lines:RDD[String]= sc.textFile("F://spark//spark-1.6.2-bin-hadoop2.6//README.md", 1)    //读取本地文件，并设置Partition = 1  
-    val lines= sc.textFile("D://winspark//hadoop-2.6.0//README.txt", 1)    //读取本地文件，并设置Partition = 1   //类型推导得出lines为RDD  
+    val lines= sc.textFile("/tmp/zzl/wordcount.txt", 1)    //读取本地文件，并设置Partition = 1   //类型推导得出lines为RDD  
     /** 
      * 第四步:对初始的RDD进行Transformation级别的处理，例如map，filter等高阶函数等的编程，来进行具体的数据计算 
      *    4.1:将每一行的字符串拆分成单个的单词 
@@ -47,7 +47,7 @@ object WordCount {
      */  
       
     //对每一行的字符串进行单词的拆分并把所有行的拆分结果通过flat合并成为一个大的单词集合  
-    val words = lines.flatMap { line => line.split(" ") }    //words同样是RDD类型    
+    val words = lines.flatMap { line => line.split(",") }    //words同样是RDD类型    
     val pairs = words.map { word => (word,1) }  
     val wordCounts = pairs.reduceByKey(_+_)       //对相同的key，进行value的累加（包括Local和Reducer级别同时Reduce）  
       
@@ -59,5 +59,6 @@ object WordCount {
       
     /*这个程序运行之后一定会有一个错误，因为 没有hadoop环境，这个不是程序错误，也不影响任何功能*/  
       
+
   }  
 }  

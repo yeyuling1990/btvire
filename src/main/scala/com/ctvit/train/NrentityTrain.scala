@@ -11,11 +11,12 @@ object NrentityTrain {
   val conf = new SparkConf()
   conf.setAppName("entityTrain")
 //  conf.setMaster("local")
+  conf.setMaster("spark://192.168.168.41:7077")
   conf.set("spark.executor.memory", "2g")
   val sc = new SparkContext(conf)
-  
+  println("读取用户浏览记录")
+
   def train(){
-    println("读取用户浏览记录")
     //公司集群地址： /tmp/zzl/userlog/device_id_hot50_dataSet.csv
     //本地地址 ： hdfs://localhost:9000/home/zhang/userlog/device_id_hot50_dataSet.csv
     val logRawRDD = sc.textFile("/tmp/zzl/userlog/device_id_hot50_dataSet.csv")
@@ -32,16 +33,16 @@ object NrentityTrain {
     println("读取用户article的实体")
     var sSql = articleList.mkString(",").replace(",", "','")
     sSql = "'"+sSql+"'"
-//    println(sSql)
+    println(sSql)
     
     val nrentityDataRDD = new JdbcRDD(sc,MysqlConn.connMySQL,"select nrEntity from a_article_topic where article_id in (" + sSql + ") and id > ? and id < ?",1,2000000,1,getArticleNrentity)
-    .filter(line => line != "")
-    .flatMap(line => line.split(","))
-    .map(word => (word, 1))
-    .reduceByKey(_+_)
-    .sortBy(_._2,false)
-    .take(20)
-    .foreach(tuple => insterEntityOfUsers(userId, tuple))  
+    .filter(line => line != "").foreach(println)
+//    .flatMap(line => line.split(","))
+//    .map(word => (word, 1))
+//    .reduceByKey(_+_)
+//    .sortBy(_._2,false)
+//    .take(20)
+//    .foreach(tuple => insterEntityOfUsers(userId, tuple))  
   }
 
   def getArticleNrentity(r: ResultSet) = {
@@ -60,6 +61,5 @@ object NrentityTrain {
   
   def main(args: Array[String]): Unit = {
     train()
-    //UserTrainResult.train()
   }  
 }
