@@ -14,6 +14,9 @@ object MysqlConn {
     println("连接数据库")
      val MYSQL_DRIVER = "com.mysql.jdbc.Driver"
     Class.forName(MYSQL_DRIVER)
+//    DriverManager.getConnection(Config.mysql_url, Config.mysql_username, Config.mysql_password)
     DriverManager.getConnection(Config.mysql_url, Config.mysql_username, Config.mysql_password)
+
+    
   }
 }
