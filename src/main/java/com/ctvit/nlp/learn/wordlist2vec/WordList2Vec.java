@@ -40,7 +40,8 @@ public class WordList2Vec {
 //			e.printStackTrace();
 //		} // 属性文件流
 //		vmZH = VectorModel.loadFromFile(prop.getProperty("wordModelPath"));
-		vmZH = VectorModel.loadFromFile("/tmp/zzl/model/word2vec.model");
+		vmZH = VectorModel.loadFromFile("hdfs://localhost:9000/model/word2vec.model");
+//		vmZH = VectorModel.loadFromFile("/tmp/zzl/model/word2vec.model");
 	}
 
 	public Vector trainDocVector(List<String> wordLst) {

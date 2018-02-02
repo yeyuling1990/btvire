@@ -106,7 +106,7 @@ public class VectorModel {
 			//在本地使用的时候使用hdfs，如果是在集群上，默认直接就是路径
 //			if(path.startsWith("hdfs:"))
 
-			if(path.startsWith("/tmp"))
+			if(path.startsWith("/tmp") ||path.startsWith("hdfs:"))
 			{
 				Configuration conf = new Configuration();
 				FileSystem fs = FileSystem.get(URI.create(path),conf);

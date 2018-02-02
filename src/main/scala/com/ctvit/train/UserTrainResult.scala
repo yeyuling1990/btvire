@@ -11,17 +11,16 @@ import com.ctvit.db.MysqlConn
 
 object UserTrainResult {
 
-  
   def train() {
-    
-  val conn = MysqlConn.connMySQL()
-  var channelCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
-  var userCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
-  val conf = new SparkConf()
-  conf.setAppName("MyFirstSparkApplication") //设置应用程序的名称，在程序运行的监控界面可以看到名称
-//  conf.setMaster("local")
-  conf.set("spark.executor.memory", "2g")
-  val sc = new SparkContext(conf)
+
+    val conn = MysqlConn.connMySQL()
+    var channelCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
+    var userCount: scala.collection.mutable.Map[String, Int] = scala.collection.mutable.Map[String, Int]()
+    val conf = new SparkConf()
+    conf.setAppName("MyFirstSparkApplication") //设置应用程序的名称，在程序运行的监控界面可以看到名称
+    //  conf.setMaster("local")
+    conf.set("spark.executor.memory", "2g")
+    val sc = new SparkContext(conf)
 
     val topiccountdata = new JdbcRDD(sc, MysqlConn.connMySQL, "select  userid,tchannel,topicid,count from a_user_favorite where  id>? and id<?", 1, 2000000, 1, getUserFavorite)
     val userCountRdd = topiccountdata.map(tup => (tup._1, tup._4)).reduceByKey(_ + _, 3)
@@ -31,14 +30,14 @@ object UserTrainResult {
     val userChannelCountRdd = userChannelRdd.reduceByKey(_ + _, 3)
     userChannelCountRdd.sortBy(tup => tup._2 * (-1)).collect().foreach(tup => println(tup._1 + ":" + tup._2))
     userChannelCountRdd.collect().foreach(tup => channelCount.put(tup._1, tup._2))
-    userChannelCountRdd.sortBy(tup => tup._1).collect().foreach(tup => { var userid = tup._1.split('$')(0); var channel = tup._1.split('$')(1); insertChannel(conn,userid, channel, tup._2, userCount.get(userid).getOrElse(0)) })
-    topiccountdata.sortBy(tup => tup._1).collect().foreach(tup => { insertTopic(conn,tup._1, tup._2, tup._3, tup._4, channelCount.get(tup._1 + "$" + tup._2).getOrElse(0)) })
+    userChannelCountRdd.sortBy(tup => tup._1).collect().foreach(tup => { var userid = tup._1.split('$')(0); var channel = tup._1.split('$')(1); insertChannel(conn, userid, channel, tup._2, userCount.get(userid).getOrElse(0)) })
+    topiccountdata.sortBy(tup => tup._1).collect().foreach(tup => { insertTopic(conn, tup._1, tup._2, tup._3, tup._4, channelCount.get(tup._1 + "$" + tup._2).getOrElse(0)) })
     if (!conn.isClosed()) {
       conn.close()
     }
   }
-  
-  def insertChannel(conn:Connection,userId: String, channel: String, count: Int, userCount: Int): Unit = {
+
+  def insertChannel(conn: Connection, userId: String, channel: String, count: Int, userCount: Int): Unit = {
     if (userCount != 0) {
       var dCount: Float = count
       var dUserCount: Float = userCount
@@ -49,7 +48,7 @@ object UserTrainResult {
       conn.createStatement().execute(str)
     }
   }
-  def insertTopic(conn:Connection,userId: String, channel: String, topic: String, count: Int, channelCount: Int): Unit = {
+  def insertTopic(conn: Connection, userId: String, channel: String, topic: String, count: Int, channelCount: Int): Unit = {
 
     if (channelCount != 0) {
       var dCount: Float = count
@@ -61,7 +60,7 @@ object UserTrainResult {
       conn.createStatement().execute(str)
     }
   }
- 
+
   /**
    * a_user_favorite
    * userid,tchannel,topicid,count
