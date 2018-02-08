@@ -16,7 +16,7 @@ object Config {
   var nrentityobj = ""
   var properties = new Properties()
   println("开始读取配置文件！")
-  var path = getClass().getClassLoader().getResourceAsStream("db.properties");
+  var path = getClass().getClassLoader().getResourceAsStream("db2.properties");
   properties.load(path)
   //properties.load(new FileInputStream("E:\\code\\eclipse\\scalaspark\\target\\classes\\com\\ctvit\\config\\db.properties"))
   mysql_url = properties.getProperty("mysql_url")

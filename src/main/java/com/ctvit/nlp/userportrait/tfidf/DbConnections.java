@@ -21,32 +21,24 @@ import org.slf4j.LoggerFactory;
 public class DbConnections {
 	private static Logger logger = LoggerFactory.getLogger(DbConnections.class);
 	private static Properties properties = new Properties();
-	private static String MYSQL_DRIVER;
-	private static String MYSQL_CONNECT;
-	private static String MYSQL_DB_USER;
-	private static String MYSQL_DB_PASSWD;
-	private static String MYSQL_HOST;
-	private static String MYSQL_PORT;
-	private static String MYSQL_DB;
+	private static String mysql_url = "";
+	private static String mysql_username = "";
+	private static String mysql_password = "";
 	
 	static {
-		String configFilePath = "/mysql.jdbc.properties";
+		String configFilePath = "/db.properties";
 		try {
 			properties.load(DbConnections.class.getResourceAsStream(configFilePath));
-			MYSQL_DRIVER = properties.getProperty("jdbc.driver");
-			Class.forName(MYSQL_DRIVER);
+			Class.forName("com.mysql.jdbc.Driver");
+			 mysql_url = properties.getProperty("mysql_url");
+			 mysql_username = properties.getProperty("mysql_username");
+			 mysql_password = properties.getProperty("mysql_password");
 		} catch (IOException e) {
 			logger.error("加载配置文件出错,path= " + configFilePath, e);
 		} catch (ClassNotFoundException e) {
 			logger.error("加载数据库驱动出错", e);
 		}
 
-		MYSQL_HOST = properties.getProperty("jdbc.host");
-		MYSQL_PORT = properties.getProperty("jdbc.port");
-		MYSQL_DB = properties.getProperty("jdbc.database");
-		MYSQL_CONNECT = "jdbc:mysql://" + MYSQL_HOST + ":" + MYSQL_PORT + "/" + MYSQL_DB + "?useSSL=true";
-		MYSQL_DB_USER = properties.getProperty("jdbc.username");
-		MYSQL_DB_PASSWD = properties.getProperty("jdbc.password");
 	}
 	
 	/**
@@ -56,6 +48,6 @@ public class DbConnections {
 	 * @throws SQLException
 	 */
 	public static Connection getContentDataConnection() throws SQLException {
-		return DriverManager.getConnection(MYSQL_CONNECT, MYSQL_DB_USER, MYSQL_DB_PASSWD);
+		return DriverManager.getConnection(mysql_url, mysql_username, mysql_password);
 	}
 }

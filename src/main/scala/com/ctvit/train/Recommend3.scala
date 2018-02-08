@@ -17,7 +17,7 @@ object Recommend3 {
 
     val conf = new SparkConf()
     conf.setAppName("recommend2") //设置应用程序的名称，在程序运行的监控界面可以看到名称
-    conf.setMaster("local")
+//    conf.setMaster("local")
     conf.set("spark.executor.memory", "2g")
     val sc = new SparkContext(conf)
     val userFChannelRdd = new JdbcRDD(sc, MysqlConn.connMySQL, "select userid,channel,weights from a_user_favorite_channel where  id>? and id<?", 1, 2000000, 1, getFChannel)
